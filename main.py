@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+import multiprocessing
 import random
-from threading import Thread
 
 import os.path
 import sys
+import threading
+from time import time
 from typing import Tuple
-
 import pygame as pg
+
+from multiprocessing import Process
+from threading import Thread
 
 colors = pg.Color
 
@@ -20,6 +24,8 @@ group_sprite_red_doorH = pg.sprite.Group()  # Группа красных две
 greenVH = pg.sprite.Group()
 redVH = pg.sprite.Group()
 all_obj = pg.sprite.Group()
+all_objV = pg.sprite.Group()
+all_objH = pg.sprite.Group()
 
 key = pg.sprite.Group()
 group_sprite_wall = pg.sprite.Group()  # группа обычных блоков
@@ -27,18 +33,20 @@ group_sprite_surf = pg.sprite.Group()  # Группа поверхности
 
 all_sprites = pg.sprite.Group()
 
+"""Раздеение групп спрайтов на четверти"""
+
 """Параметры экрана: Буферизация|Разрешение"""
 size: Tuple[int, int] = (1280, 720)  # Разрешение экрана
 SIZE = WIDTH, HEIGHT = size
-flags = pg.FULLSCREEN | pg.DOUBLEBUF  # Полныйэкран|Буферизация
+flags = pg.DOUBLEBUF  # Полныйэкран|Буферизация
 screen = pg.display.set_mode(flags=flags)
 
 """Персонажи"""
 player = pg.sprite.Group()  # сам игрок
 mobV = pg.sprite.Group()  # Группа вертикальных врагов
 mobH = pg.sprite.Group()  # Группа горизонтальных врагов
-vector_enemyV = {}  # Направление движения вертикальных врагов (верх или низ)
-vector_enemyH = {}  # Направление движения горизонтальных врагов (лево или право)
+dict_vector_enemyV = {}  # Направление движения вертикальных врагов (верх или низ)
+dict_vector_enemyH = {}  # Направление движения горизонтальных врагов (лево или право)
 numV = 0  # Номер спрайта, для определения направления скорости после столкновения
 numH = 0  # Номер спрайта, для определения направления скорости после столкновения
 
@@ -159,9 +167,9 @@ class Surface(pg.sprite.Sprite):
 class EnemyV(pg.sprite.Sprite):
     def __init__(self, sprite_name, pos_x, pos_y):
         super().__init__(mobV)
-        global vector_enemyV, numV
+        global dict_vector_enemyV, numV
 
-        vector_enemyV[numV] = random.choice([-1, 1])
+        dict_vector_enemyV[numV] = random.choice([-1, 1])
         numV += 1
 
         self.image = objects[sprite_name]
@@ -173,9 +181,9 @@ class EnemyV(pg.sprite.Sprite):
 class EnemyH(pg.sprite.Sprite):
     def __init__(self, sprite_name, pos_x, pos_y):
         super().__init__(mobH)
-        global vector_enemyH, numH
+        global dict_vector_enemyH, numH
 
-        vector_enemyH[numH] = random.choice([-1, 1])
+        dict_vector_enemyH[numH] = random.choice([-1, 1])
         numH += 1
         self.image = objects[sprite_name]
         self.rect = self.image.get_rect().move(
@@ -202,6 +210,44 @@ class Player(pg.sprite.Sprite):
         self.rect.topleft = (self.x, self.y)
 
 
+generate_level('lvl1.txt')
+
+collisions_objectV = {}
+collisions_objectH = {}
+
+
+class Enemy:
+
+    def vectorH_enemy(self):
+        for numh, mh in enumerate(mobH):
+            (x1h, y1h, x2h, y2h) = mh.rect
+            mh.rect = (x1h + dict_vector_enemyH[numh], y1h, x2h, y2h)
+
+            if pg.sprite.collide_rect(collisions_objectH[numh][0], mh) or \
+                    pg.sprite.collide_rect(collisions_objectH[numh][1], mh):
+                (x1h, y1h, x2h, y2h) = mh.rect
+                mh.rect = (x1h - dict_vector_enemyH[numh], y1h, x2h, y2h)
+                if dict_vector_enemyH[numh] == 1:
+                    dict_vector_enemyH[numh] = -1
+                elif dict_vector_enemyH[numh] == -1:
+                    dict_vector_enemyH[numh] = 1
+
+    def vectorV_enemy(self):
+        for numv, mv in enumerate(mobV):
+            (x1v, y1v, x2v, y2v) = mv.rect
+            mv.rect = (x1v, y1v + dict_vector_enemyV[numv], x2v, y2v)
+
+            if pg.sprite.collide_rect(collisions_objectV[numv][0], mv) or \
+                    pg.sprite.collide_rect(collisions_objectV[numv][1], mv):
+                (x1h, y1h, x2h, y2h) = mv.rect
+                mv.rect = (x1h, y1h - dict_vector_enemyV[numv], x2h, y2h)
+                if dict_vector_enemyV[numv] == 1:
+                    dict_vector_enemyV[numv] = -1
+
+                elif dict_vector_enemyV[numv] == -1:
+                    dict_vector_enemyV[numv] = 1
+
+
 class App:
 
     def __init__(self):
@@ -216,17 +262,10 @@ class App:
 
         self.clock = pg.time.Clock()
 
-        self.left_edge = False
-        self.right_edge = False
-        self.up_edge = False
-        self.down_edge = False
-        self.door_coords = (0, 0, 0, 0)
-
     def run(self):
         self.is_run = True
 
         ''' Открытие БД и проверка, на каком уровне игрок с последующей передачей в | generate_level() | имени уровня'''
-        generate_level('lvl1.txt')
 
         """объеденение всех спрайтов в группы """
         all_sprites.add(group_sprite_wall, player, mobH, mobV, group_sprite_green_doorV, group_sprite_red_doorV,
@@ -314,7 +353,6 @@ class App:
                             self.door_g = True
 
                 if len(generator_3) > 0:
-                    print(1)
                     if y < 0:
                         if i.rect[1] + i.rect[3] - 2 < generator_3[0].rect[1]:
                             self.door_r = False
@@ -377,17 +415,9 @@ class App:
                     (x1, y1, x2, y2) = i.rect
                     i.rect = (x1 - x, y1 - y, x2, y2)
 
-        thr_wall = Thread(target=check_wall())
-        thr_red = Thread(target=check_red())
-        thr_green = Thread(target=check_green())
-
-        thr_wall.start()
-        thr_red.start()
-        thr_green.start()
-
-        thr_wall.join()
-        thr_red.join()
-        thr_green.join()
+        check_wall()
+        check_red()
+        check_green()
 
     def lvl_restart(self):
         for i in all_sprites:
@@ -435,50 +465,135 @@ class App:
         self.door_g = True  # Зелёная, В какую дверь игрок может войти (по умолчанию в любую)
 
     def Enemy(self):
-        def vectorH_enemy():
-            for numh, mh in enumerate(mobH):
-                (x1h, y1h, x2h, y2h) = mh.rect
-                mh.rect = (x1h + vector_enemyH[numh], y1h, x2h, y2h)
-
-                if len(list((j for j in all_obj if pg.sprite.collide_mask(mh, j)))) > 0:
-                    (x1h, y1h, x2h, y2h) = mh.rect
-                    mh.rect = (x1h - vector_enemyH[numh], y1h, x2h, y2h)
-                    if vector_enemyH[numh] == 1:
-                        vector_enemyH[numh] = -1
-                    elif vector_enemyH[numh] == -1:
-                        vector_enemyH[numh] = 1
-
-        def vectorV_enemy():
-            for numv, mv in enumerate(mobV):
-                (x1v, y1v, x2v, y2v) = mv.rect
-                mv.rect = (x1v, y1v + vector_enemyV[numv], x2v, y2v)
-
-                if len(list((j for j in all_obj if pg.sprite.collide_mask(mv, j)))) > 0:
-                    if vector_enemyV[numv] == 1:
-                        vector_enemyV[numv] = -1
-                        (x1v, y1v, x2v, y2v) = mv.rect
-                        mv.rect = (x1v, y1v + vector_enemyV[numv], x2v, y2v)
-
-                    elif vector_enemyV[numv] == -1:
-                        vector_enemyV[numv] = 1
-                        (x1v, y1v, x2v, y2v) = mv.rect
-                        mv.rect = (x1v, y1v + vector_enemyV[numv], x2v, y2v)
-
-        """Проверка на столкновение с врагом"""
         if len(list((e for e in enemy if pg.sprite.collide_mask(player.sprites()[0], e)))) > 0:
             exit()
-        enemy_thr1 = Thread(target=vectorH_enemy)
-        enemy_thr2 = Thread(target=vectorV_enemy)
+        else:
+            Enemy().vectorH_enemy()
+            Enemy().vectorV_enemy()
 
-        enemy_thr1.start()
-        enemy_thr2.start()
 
-        enemy_thr1.join()
-        enemy_thr2.join()
+greenVH.add(group_sprite_green_doorH, group_sprite_green_doorV)
+redVH.add(group_sprite_red_doorV, group_sprite_red_doorH)
+all_obj.add(group_sprite_wall, redVH, greenVH)
+
+
+"""Два класса <<Enemy_dubler>> и <<A>> созданы для оптимизации уровня с врагами"""
+class Enemy_dubler:
+
+    def vectorH_enemy(self):
+        for numh, mh in enumerate(mobH):
+            (x1h, y1h, x2h, y2h) = mh.rect
+            mh.rect = (x1h + dict_vector_enemyH[numh], y1h, x2h, y2h)
+            gen = list((j for j in all_obj if pg.sprite.collide_mask(mh, j)))
+
+            if len(gen) > 0:
+                (x1h, y1h, x2h, y2h) = mh.rect
+                mh.rect = (x1h - dict_vector_enemyH[numh], y1h, x2h, y2h)
+                if dict_vector_enemyH[numh] == 1:
+                    dict_vector_enemyH[numh] = -1
+                elif dict_vector_enemyH[numh] == -1:
+                    dict_vector_enemyH[numh] = 1
+                return [gen[0], numh]
+
+    def vectorV_enemy(self):
+        for numv, mv in enumerate(mobV):
+            (x1v, y1v, x2v, y2v) = mv.rect
+            mv.rect = (x1v, y1v + dict_vector_enemyV[numv], x2v, y2v)
+            gen = list((j for j in all_obj if pg.sprite.collide_mask(mv, j)))
+
+            if len(gen) > 0:
+                (x1h, y1h, x2h, y2h) = mv.rect
+                mv.rect = (x1h, y1h - dict_vector_enemyV[numv], x2h, y2h)
+                if dict_vector_enemyV[numv] == 1:
+                    dict_vector_enemyV[numv] = -1
+
+                elif dict_vector_enemyV[numv] == -1:
+                    dict_vector_enemyV[numv] = 1
+
+                return [gen[0], numv]
+
+
+class A:
+    def __init__(self, V=False, H=False):
+        if V:
+
+            init = Enemy_dubler()
+
+            c = True
+            sp = []
+            CONST = len(dict_vector_enemyV)
+            while c:
+                V = init.vectorV_enemy()
+                if V != None:
+                    collision = V[0]
+                    if V[1] not in collisions_objectV:
+                        collisions_objectV[V[1]] = [collision]
+                    elif V[1] in collisions_objectV:
+                        a = collisions_objectV[V[1]]
+                        if (a[0] != collision) and (len(collisions_objectV[V[1]]) < 3):
+                            a = [a[0], collision]
+                            collisions_objectV[V[1]] = a
+
+                    for i in collisions_objectV:
+
+                        if len(collisions_objectV[i]) == 2 and i not in sp:
+                            sp.append(i)
+
+                        if len(sp) == CONST:
+                            sorted(collisions_objectV)
+                            print(f'collisions_objectV: {collisions_objectV}')
+                            c = False
+                            break
+        if H:
+            init = Enemy_dubler()
+
+            cc = True
+            sp = []
+            CONST = len(dict_vector_enemyH)
+
+            while cc:
+                H = init.vectorH_enemy()
+                if H != None:
+                    collision = H[0]
+                    if H[1] not in collisions_objectH:
+                        collisions_objectH[H[1]] = [collision]
+                    elif H[1] in collisions_objectH:
+                        a = collisions_objectH[H[1]]
+                        if (a[0] != collision) and (len(collisions_objectH[H[1]]) < 3):
+                            a = [a[0], collision]
+                            collisions_objectH[H[1]] = a
+
+                    for i in collisions_objectH:
+
+                        if len(collisions_objectH[i]) == 2 and i not in sp:
+                            sp.append(i)
+
+                        if len(sp) == CONST:
+                            sorted(collisions_objectH)
+                            print(f'collisions_objectH: {collisions_objectH}')
+                            cc = False
+                            break
+
+
+def miscalculation():
+
+    thr1 = Thread(target=A, args=(False, True))
+    thr2 = Thread(target=A, args=(True, False))
+
+    thr1.start()
+    thr2.start()
+
+    thr1.join()
+    thr2.join()
+
+
 
 
 def main():
+    miscalculation()
+
     app = App()
+    app.lvl_restart()
     app.run()
 
 
