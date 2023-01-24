@@ -3,7 +3,7 @@ import random
 
 import os.path
 import sys
-import threading
+
 
 from typing import Tuple
 import pygame as pg
@@ -28,17 +28,14 @@ all_objV = pg.sprite.Group()
 all_objH = pg.sprite.Group()
 
 key = pg.sprite.Group()
+count_key = 0
+
 group_sprite_wall = pg.sprite.Group()  # группа обычных блоков
 group_sprite_surf = pg.sprite.Group()  # Группа поверхности
 
 all_sprites = pg.sprite.Group()
 
 """Раздеение групп спрайтов на четверти"""
-quarter_enemy_1 = {}
-quarter_enemy_2 = {}
-quarter_enemy_3 = {}
-quarter_enemy_4 = {}
-
 quarter_1 = pg.sprite.Group()
 quarter_2 = pg.sprite.Group()
 quarter_3 = pg.sprite.Group()
@@ -59,13 +56,15 @@ mobH = pg.sprite.Group()  # Группа горизонтальных враго
 collisions_objectV = {}
 collisions_objectH = {}
 
+copy_collisions_objectV = {}
+copy_collisions_objectH = {}
+
 dict_vector_enemyV = {}  # Направление движения вертикальных врагов (верх или низ)
 dict_vector_enemyH = {}  # Направление движения горизонтальных врагов (лево или право)
 numV = 0  # Номер спрайта, для определения направления скорости после столкновения
 numH = 0  # Номер спрайта, для определения направления скорости после столкновения
 
 enemy = pg.sprite.Group()
-enemy.add(mobH, mobV)
 tile_width = tile_height = 50  # Размер для отступа от спрайта
 
 
@@ -86,6 +85,7 @@ objects = {
     'grass': load_image('grass.png'),
     'player': load_image('player.png'),
     'enemy': load_image('enemy.png'),
+    'enemy2': load_image('enemy2.png'),
     'key': load_image('key.png')
 }
 
@@ -130,10 +130,10 @@ def generate_level(name):
                     RedH('red_door', x, y)
                 elif level[y][x] == 'E':  # E - Враг двигается по вертикали
                     pass
-                    EnemyV('enemy', x, y)
+                    EnemyV(x, y)
                 elif level[y][x] == 'e':  # e - Враг двигается по горизонтали
                     pass
-                    EnemyH('enemy', x, y)
+                    EnemyH(x, y)
                 elif level[y][x] == 'k':  # k - ключ, небходиммый для прохождения уровня
                     pass
                     Key('key', x, y)
@@ -193,13 +193,13 @@ class Wall(pg.sprite.Sprite):
 
 
 class EnemyV(pg.sprite.Sprite):
-    def __init__(self, sprite_name, pos_x, pos_y):
+    def __init__(self, pos_x, pos_y):
         super().__init__(mobV)
         global dict_vector_enemyV, numV
 
         dict_vector_enemyV[numV] = 50
         numV += 1
-
+        sprite_name = random.choice(['enemy', 'enemy2'])
         self.image = objects[sprite_name]
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_width * pos_y
@@ -207,12 +207,13 @@ class EnemyV(pg.sprite.Sprite):
 
 
 class EnemyH(pg.sprite.Sprite):
-    def __init__(self, sprite_name, pos_x, pos_y):
+    def __init__(self, pos_x, pos_y):
         super().__init__(mobH)
         global dict_vector_enemyH, numH
 
         dict_vector_enemyH[numH] = 50
         numH += 1
+        sprite_name = random.choice(['enemy', 'enemy2'])
         self.image = objects[sprite_name]
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_width * pos_y
@@ -239,38 +240,51 @@ class Player(pg.sprite.Sprite):
 
 
 """toto"""
-generate_level('lvl1.txt')
+lvl_chooise = input()
+generate_level(f'lvl{lvl_chooise}.txt')
 
 
-class Enemy:
+class Enemy_move:
 
     def vectorH_enemy(self):
-        for numh, mh in enumerate(mobH):
-            (x1h, y1h, x2h, y2h) = mh.rect
-            mh.rect = (x1h + dict_vector_enemyH[numh], y1h, x2h, y2h)
-            if (collisions_objectH[numh][0][0] < mh.rect[0] + mh.rect[2]) or \
-                    (collisions_objectH[numh][1][1] > mh.rect[0]):
+        try:
+            for numh, mh in enumerate(mobH):
                 (x1h, y1h, x2h, y2h) = mh.rect
-                mh.rect = (x1h - dict_vector_enemyH[numh], y1h, x2h, y2h)
-                if dict_vector_enemyH[numh] > 0:
-                    dict_vector_enemyH[numh] = -1
-                elif dict_vector_enemyH[numh] < 0:
-                    dict_vector_enemyH[numh] = 1
+                mh.rect = (x1h + dict_vector_enemyH[numh], y1h, x2h, y2h)
+                if (collisions_objectH[numh][0][0] < mh.rect[0] + mh.rect[2]) or \
+                        (collisions_objectH[numh][1][1] > mh.rect[0]):
+                    (x1h, y1h, x2h, y2h) = mh.rect
+                    mh.rect = (x1h - dict_vector_enemyH[numh], y1h, x2h, y2h)
+                    if dict_vector_enemyH[numh] > 0:
+                        dict_vector_enemyH[numh] = -1
+                        mh.image = pg.transform.flip(mh.image, True, False)
+                    elif dict_vector_enemyH[numh] < 0:
+                        dict_vector_enemyH[numh] = 1
+                        mh.image = pg.transform.flip(mh.image, True, False)
+        except:
+            pass
 
     def vectorV_enemy(self):
-        for numv, mv in enumerate(mobV):
-            (x1v, y1v, x2v, y2v) = mv.rect
-            mv.rect = (x1v, y1v + dict_vector_enemyV[numv], x2v, y2v)
-            if (collisions_objectV[numv][0][0] < mv.rect[1] + mv.rect[3]) or \
-                    (collisions_objectV[numv][1][1] > mv.rect[1]):
+        try:
+            for numv, mv in enumerate(mobV):
+                (x1v, y1v, x2v, y2v) = mv.rect
+                mv.rect = (x1v, y1v + dict_vector_enemyV[numv], x2v, y2v)
+                if (collisions_objectV[numv][0][0] < mv.rect[1] + mv.rect[3]) or \
+                        (collisions_objectV[numv][1][1] > mv.rect[1]):
 
-                (x1h, y1h, x2h, y2h) = mv.rect
-                mv.rect = (x1h, y1h - dict_vector_enemyV[numv], x2h, y2h)
-                if dict_vector_enemyV[numv] > 0:
-                    dict_vector_enemyV[numv] = -1
+                    (x1h, y1h, x2h, y2h) = mv.rect
+                    mv.rect = (x1h, y1h - dict_vector_enemyV[numv], x2h, y2h)
+                    if dict_vector_enemyV[numv] > 0:
+                        dict_vector_enemyV[numv] = -1
+                        mobV.sprites()[numv].image = pg.transform.flip(mobV.sprites()[numv].image, True, False)
 
-                elif dict_vector_enemyV[numv] < 0:
-                    dict_vector_enemyV[numv] = 1
+
+                    elif dict_vector_enemyV[numv] < 0:
+                        dict_vector_enemyV[numv] = 1
+                        mobV.sprites()[numv].image = pg.transform.flip(mobV.sprites()[numv].image, True, False)
+        except:
+            pass
+
 
 
 class App:
@@ -284,6 +298,8 @@ class App:
         self.FPS = 59
         pg.init()
         self.clock = pg.time.Clock()
+        self.direction = 0
+        self.direction_flag = None
 
     def run(self):
         self.is_run = True
@@ -329,6 +345,14 @@ class App:
     def Move_pl(self, x=0, y=0):
         Camera()
         i = player.sprites()[0]
+
+        """Для определения направления игрока"""
+        if (x > 0 and self.direction_flag is False) or self.direction_flag is None:
+            player.sprites()[0].image = pg.transform.flip(player.sprites()[0].image, True, False)
+            self.direction_flag = True
+        elif (x < 0 and self.direction_flag is True) or self.direction_flag is None:
+            player.sprites()[0].image = pg.transform.flip(player.sprites()[0].image, True, False)
+            self.direction_flag = False
 
         print(f'{self.clock.get_fps():2.0f}')
 
@@ -380,28 +404,26 @@ class App:
         if ((0 <= x1 + ms_sdg_X <= max_len_x // 2) or (0 <= (x1 + x2 + ms_sdg_X) <= max_len_x // 2)) and (
                 (0 <= y1 + ms_sdg_Y <= max_len_y // 2) or (0 <= (y1 + y2 + ms_sdg_Y) <= max_len_y // 2)):
             check_wall_quater(condition=1)
-            print(1)
 
         elif ((max_len_x // 2 <= x1 + ms_sdg_X <= max_len_x) or (
                 max_len_x // 2 <= (x1 + x2 + ms_sdg_X) <= max_len_x)) and (
                 (0 <= y1 + ms_sdg_Y <= max_len_y // 2) or (0 <= (y1 + y2 + ms_sdg_Y) <= max_len_y // 2)):
             check_wall_quater(condition=2)
-            print(2)
 
         elif ((0 <= x1 + ms_sdg_X <= max_len_x // 2) or (0 <= (x1 + x2 + ms_sdg_X) <= max_len_x // 2)) and (
                 (max_len_y // 2 <= y1 + ms_sdg_Y <= max_len_y) or (
                 max_len_y // 2 <= (y1 + y2 + ms_sdg_Y) <= max_len_y)):
             check_wall_quater(condition=3)
-            print(3)
 
         elif ((max_len_x // 2 <= x1 + ms_sdg_X <= max_len_x) or (
                 max_len_x // 2 <= (x1 + x2 + ms_sdg_X) <= max_len_x)) and (
                 (max_len_y // 2 <= y1 + ms_sdg_Y <= max_len_y) or (
                 max_len_y // 2 <= (y1 + y2 + ms_sdg_Y) <= max_len_y)):
             check_wall_quater(condition=4)
-            print(4)
+
 
     def lvl_restart(self):
+        global SDVIG_X, SDVIG_Y
         for i in all_sprites:
             i.kill()
         for i in group_sprite_wall:
@@ -426,17 +448,16 @@ class App:
             i.kill()
         for i in mobV:
             i.kill()
-        for i in key:
-            i.kill()
         for i in all_obj:
             i.kill()
 
         """открытие бд для уровня"""
-        generate_level('lvl1.txt')
+        a = input()
+        generate_level(f'lvl{a}.txt')
 
         all_sprites.add(group_sprite_wall, player, mobH, mobV, group_sprite_green_doorV, group_sprite_red_doorV,
                         group_sprite_green_doorH,
-                        group_sprite_red_doorH, key)
+                        group_sprite_red_doorH)
         enemy.add(mobH, mobV)
         greenVH.add(group_sprite_green_doorV, group_sprite_green_doorH)
         redVH.add(group_sprite_red_doorV, group_sprite_red_doorH)
@@ -465,17 +486,49 @@ class App:
         all_sprites.draw(self.screen)
         self.door_r = True  # Красная, В какую дверь игрок может войти (по умолчанию в любую)
         self.door_g = True  # Зелёная, В какую дверь игрок может войти (по умолчанию в любую)
+        self.direction_flag = None
+
+        for _, key in enumerate(collisions_objectH):
+            collis1, collis2 = collisions_objectH[key]
+
+            collis1[0] -= SDVIG_X
+            collis2[1] -= SDVIG_X
+
+            collisions_objectH[key] = [collis1, collis2]
+
+        for _, key in enumerate(collisions_objectV):
+            collis1, collis2 = collisions_objectV[key]
+
+            collis1[0] -= SDVIG_Y
+            collis2[1] -= SDVIG_Y
+
+            collisions_objectV[key] = [collis1, collis2]
+
+        SDVIG_X = 0
+        SDVIG_Y = 0
+        dict_vector_enemyV.clear()
+        dict_vector_enemyH.clear()
+        for num1 in range(len(mobV)):
+            dict_vector_enemyV[num1] = random.choice([-1, 1])
+
+        for num2 in range(len(mobH)):
+            x = random.choice([-1, 1])
+            dict_vector_enemyH[num2] = x
+            if x > 0:
+                mobH.sprites()[num2].image = pg.transform.flip(mobH.sprites()[num2].image, True, False)
+
 
     def Enemy(self):
         if len(list((e for e in enemy if pg.sprite.collide_mask(player.sprites()[0], e)))) > 0:
             exit()
         else:
-            Enemy().vectorH_enemy()
-            Enemy().vectorV_enemy()
+            Enemy_move().vectorH_enemy()
+            Enemy_move().vectorV_enemy()
 
     def collision_door_H(self, i, y, gen, param=None):
+
         if y < 0:
-            if i.rect[1] + i.rect[3] - 2 < gen[0].rect[1]:
+            if i.rect[1] + i.rect[3] - 7 < gen[0].rect[1]:
                 if param == 'green':
                     self.door_r = True
                     self.door_g = False
@@ -496,7 +549,7 @@ class App:
 
     def collision_door_V(self, i, x, gen, param=None):
         if x > 0:
-            if i.rect[0] + 4 > gen[0].rect[0] + gen[0].rect[2]:
+            if i.rect[0] + 3 > gen[0].rect[0] + gen[0].rect[2]:
                 if param == 'green':
                     self.door_r = True
                     self.door_g = False
@@ -507,7 +560,7 @@ class App:
 
 
         elif x < 0:
-            if i.rect[0] + i.rect[2] - 2 < gen[0].rect[0]:
+            if i.rect[0] + i.rect[2] - 6 < gen[0].rect[0]:
                 if param == 'green':
                     self.door_r = True
                     self.door_g = False
@@ -543,9 +596,9 @@ class Camera:
         global SDVIG_X
         counter = 1000
         counter_e = counter
+        SDVIG_X += counter
         a = 0
         c = True
-        SDVIG_X += counter
 
         def sdvig_enemy_r():
             for _, key in enumerate(collisions_objectH):
@@ -805,13 +858,6 @@ def main():
 
     app = App()
     app.lvl_restart()
-
-    for num, i in enumerate(dict_vector_enemyV):
-        dict_vector_enemyV[num] = random.choice([-1, 1])
-
-    for num, i in enumerate(dict_vector_enemyH):
-        dict_vector_enemyH[num] = random.choice([-1, 1])
-
     app.run()
 
 
