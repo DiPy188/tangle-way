@@ -1,13 +1,10 @@
 from __future__ import annotations
-import random
+from typing import Tuple
 
+import pygame as pg
+import random
 import os.path
 import sys
-
-
-from typing import Tuple
-import pygame as pg
-
 from threading import Thread
 from screeninfo import get_monitors
 
@@ -78,11 +75,16 @@ def load_image(name, colorkey=None):
     return image
 
 
+# Фон
+bg = load_image("bg.png")
+bg = pg.transform.scale(bg, (x_monitor, y_monitor))
+rect = bg.get_rect()
+rect.topleft = (0, 0)
+
 objects = {
     'green_door': load_image('green_door.png'),
     'red_door': load_image('red_door.png'),
     'wall': load_image('wall.png'),
-    'grass': load_image('grass.png'),
     'player': load_image('player.png'),
     'enemy': load_image('enemy.png'),
     'enemy2': load_image('enemy2.png'),
@@ -129,13 +131,10 @@ def generate_level(name):
                 elif level[y][x] == 'r':  # r - красная дверь горизонтальна
                     RedH('red_door', x, y)
                 elif level[y][x] == 'E':  # E - Враг двигается по вертикали
-                    pass
                     EnemyV(x, y)
                 elif level[y][x] == 'e':  # e - Враг двигается по горизонтали
-                    pass
                     EnemyH(x, y)
                 elif level[y][x] == 'k':  # k - ключ, небходиммый для прохождения уровня
-                    pass
                     Key('key', x, y)
         max_len_x = max_len_x * 50
         Player(lines[-1].split()[0], lines[-1].split()[1])  # сам игрок
@@ -240,7 +239,7 @@ class Player(pg.sprite.Sprite):
 
 
 """toto"""
-lvl_chooise = input()
+lvl_chooise = input('Введите номер уровня: 1/2/3 и т.д.')
 generate_level(f'lvl{lvl_chooise}.txt')
 
 
@@ -286,7 +285,6 @@ class Enemy_move:
             pass
 
 
-
 class App:
 
     def __init__(self):
@@ -302,6 +300,7 @@ class App:
         self.direction_flag = None
 
     def run(self):
+        global bg, rect
         self.is_run = True
 
         ''' Открытие БД и проверка, на каком уровне игрок с последующей передачей в | generate_level() | имени уровня'''
@@ -336,6 +335,7 @@ class App:
 
             self.clock.tick(self.FPS)
             self.screen.fill('black')
+            self.screen.blit(bg, rect.topleft)
 
             all_sprites.draw(self.screen)
             pg.display.flip()
@@ -421,7 +421,6 @@ class App:
                 max_len_y // 2 <= (y1 + y2 + ms_sdg_Y) <= max_len_y)):
             check_wall_quater(condition=4)
 
-
     def lvl_restart(self):
         global SDVIG_X, SDVIG_Y
         for i in all_sprites:
@@ -452,8 +451,7 @@ class App:
             i.kill()
 
         """открытие бд для уровня"""
-        a = input()
-        generate_level(f'lvl{a}.txt')
+        generate_level(f'lvl{lvl_chooise}.txt')
 
         all_sprites.add(group_sprite_wall, player, mobH, mobV, group_sprite_green_doorV, group_sprite_red_doorV,
                         group_sprite_green_doorH,
@@ -517,10 +515,9 @@ class App:
             if x > 0:
                 mobH.sprites()[num2].image = pg.transform.flip(mobH.sprites()[num2].image, True, False)
 
-
     def Enemy(self):
         if len(list((e for e in enemy if pg.sprite.collide_mask(player.sprites()[0], e)))) > 0:
-            exit()
+            self.lvl_restart()
         else:
             Enemy_move().vectorH_enemy()
             Enemy_move().vectorV_enemy()
@@ -618,7 +615,9 @@ class Camera:
             for sprite in all_sprites:
                 (x, y, x1, y1) = sprite.rect
                 sprite.rect = (x + 10, y, x1, y1)
+
             screen.fill('black')
+            self.screen.blit(bg, rect.topleft)
             all_sprites.draw(self.screen)
             pg.display.flip()
             self.clock.tick(self.FPS)
@@ -653,6 +652,7 @@ class Camera:
                 (x, y, x1, y1) = sprite.rect
                 sprite.rect = (x - 10, y, x1, y1)
             screen.fill('black')
+            self.screen.blit(bg, rect.topleft)
             all_sprites.draw(self.screen)
             pg.display.flip()
             self.clock.tick(self.FPS)
@@ -687,6 +687,7 @@ class Camera:
                 (x, y, x1, y1) = sprite.rect
                 sprite.rect = (x, y + 10, x1, y1)
             screen.fill('black')
+            self.screen.blit(bg, rect.topleft)
             all_sprites.draw(self.screen)
             pg.display.flip()
             self.clock.tick(self.FPS)
@@ -721,6 +722,7 @@ class Camera:
                 (x, y, x1, y1) = sprite.rect
                 sprite.rect = (x, y - 10, x1, y1)
             screen.fill('black')
+            self.screen.blit(bg, rect.topleft)
             all_sprites.draw(self.screen)
             pg.display.flip()
             self.clock.tick(self.FPS)
@@ -777,7 +779,6 @@ class Enemy_dubler:
 
 class A:
     def __init__(self, V=False, H=False):
-        print(all_obj)
 
         if V:
             initV = Enemy_dubler()
@@ -785,6 +786,7 @@ class A:
             cV = True
             spV = []
             CONSTV = len(dict_vector_enemyV)
+            print(len(spV), CONSTV)
             while cV:
                 V = initV.vectorV_enemy()
 
@@ -805,7 +807,6 @@ class A:
                             spV.append(i)
 
                         if len(spV) == CONSTV:
-                            print(f'collisions_objectV: {sorted(collisions_objectV.items())}')
                             cV = False
                             break
         if H:
@@ -836,7 +837,6 @@ class A:
 
                         if len(spH) == CONSTH:
                             sorted(collisions_objectH)
-                            print(f'collisions_objectH: {sorted(collisions_objectH.items())}')
                             cH = False
                             break
 
