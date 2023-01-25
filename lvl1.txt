@@ -1,17 +1,38 @@
-w w w w w w w w w w w w w w w w w w w
-w s s s s G s e s s s s s s s s s s k w
-w s k e s w s s s s s s s s s w r r r w
-w s s e s w s s s s s s s s s s s e s w
-w s s e s s w g g g w w w w w w w w w w w w w w w w w w
-w s s e s s R s s s R E E E E E E E E E E E E E E E E
-w w w w w w w s s s R
-w s s e s s R s s s R E E E E E E E E E E E E E E E E
-w s s e s s w g g g w w w w w w w w w w w w w w w w w w
-w s s s s s G s s s s E s E s E s s s w
-w r r w s s G s s s s s s s s s s k s w
-w s s s s s w s r s G s s s s s s s s w
-w s s s s s w s s s G s E s E s E s s w
-w s s s s s R s s s s s s s s s s s s w
-w w w w w w w w w w w w w w w w w w w
+w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
+w s e s s s s s s s s s s E s G s s s s s s s s E s s w s s s s w s s s s s s E s s s s s s s s s s s s s s s s s s s w
+w s s s e s s s w s s s s s s G s s w g g g g w s s E w s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s w
+w s s s s s s E s s s s s s s G s e s s s s s w s s s w s s s s s s s s s s s E s s s s s s s s s s s s s s s s s s s w
+w s E s s s s s s s s w s s s G s k s k s w s R s s s w k s s s s s s s s s s s s s s s s s E s s s s s s s s s s s s w
+w s s s s E e s s s s s E s s G s s s s s s s R w s s s s s s s s s E s s s s s s s s s s E s s s s s s s s s s s s s w
+w w w w w w w w w w w w w w w w w w w w w w w w w w w g w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
+w w w w w w w w w w w w w w w w w w w w w w w w w w w s w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
+w s e s s s s s s s s s s E s s s s s s s s s s E s s s s s s s w s s s s s s E s s s s s s s s s s s s s s s s s s s w
+w s s s e s s s w s s s s s s s s s w s s s s w s s E w s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s w
+w s s s s s s E s s s s s s s s s e s s s s s w s s s w s s s s s s s s s s s E s s s s s s s s s s s s s s s s s s s w
+w s E s s s s s s s s w s s s s s s s s s w s s s s s w s s s s s s s s s s s s s s s s s s E s s s s s s s s s s s s w
+w s s s s E e s s s s s E s s s s s s s s s s s w s s s s s s s s s E s s s s s s s s s s E s s s s s s s s s s s s s w
+w w w w w w w w w w w w w w w w w w w w w w w w w w w s w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
+w w w w w w w w w w w w w w w w w w w w w w w w w w w s w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
+w s e s s s s s s s s s s E s s s s s s s s s s E s s s s s s s w s s s s s s E s s s s s s s s s s s s s s s s s s s w
+w s s s e s s s w s s s s s s s s s w r r r r w s s E w s s s s G s s s s s s s s s s s s s s s s s s s s s s s s s s w
+w s s s s s s E s s s s s s s s s e s s s s s w s s s w s s s s G s s s s s s E s s s s s s s s s s s s s s s s s s s w
+w s E s s s s s s s s w s s s s s s s s s w s G s s s w s s s s w s s s s s s s s s s s s s E s s s s s s s s s s s s w
+w s s s s E e s s s s s E s s s s s s s s s s G w s s s s s s s R s E s s s s s s s s s s E s s s s s s s s s s s s s w
+w w w w w w w w w w w w w w w w w w w w w w w w w w w s w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
+w w w w w w w w w w w w w w w w w w w w w w w w w w w s w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
+w s e s s s s s s s s s s E s s w s s s s w s s E s s s s s s s w s s s s s s E s s s s s s s s s s s s s s s s s s s w
+w s s s e s s s w s s s s s s s G s w s s R s w s s E w s s s s s s s s s s s s s s s s s w s s e s s s s s s s s s s w
+w s s s s s s E s s s s s s s s G e s s s R s w s s s w s s s s s s s s s s s E s s s s s s s s s s s s s s s s s s s w
+w s E s s s s s s s s w s s s s w s s s s w s s s s s w w s s s s s s s s s s s s s s s w s E s s s s e s s s s s s s w
+w s s s s E e s s s s s E s s s s s s s s s s s w s s s s s s s s s E s s s s s s s s s s E s s s s s s s s s s s s s w
+w w w w w w w w w w w w w w w w w w w w w w w w w w w w s w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
+w w w w w w w w w w w w w w w w w w w w w w w w w w w w s w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
+w s e s s s s s s s s s s E s s s s s s s s s s E s s s s s s s w s s s s s s E s s s s s s s s s s s s s s s s s s s w
+w s s s e s s s w s s s s s s s s s w s s s s w s s E s w s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s w
+w s s s s s s E s s s s s s s s s e s s s s s w s s s s w s s s s s s s s s s E s s s s s s s s s s s s s s s s s s s w
+w s E s s s s s s s s w s s s s s s s s s w s s s s s s w s s s s s s s s s s s s s s s s s E s s s s s s s s s s s s w
+w s s s s E e s s s s s E s s s s s s s s s s s w s s s w s s s s s E s s s s s s s s s s E s s s s s s s s s s s s s w
+w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
+
 pos
-350 300
+1250 500
