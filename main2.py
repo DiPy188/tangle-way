@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import math
 from typing import Tuple
 
 import pygame as pg
@@ -471,77 +473,81 @@ class App:
 
     def all_quarter_condition(self, x1=0, y1=0, x2=0, y2=0, sprite=None):
         """Деление экрана на 9 равных частей"""
-        if ((0 <= x1 <= max_len_x / 3) or (0 <= x1 + x2 <= max_len_x / 3)) and (
-                (0 <= y1 <= max_len_y / 3) or (0 <= y1 + y2 <= max_len_y / 3)):  # 1/9
-            if sprite:
-                quarter_1.add(sprite)
-            else:
-                return 1
+        if sprite in redVH or sprite in greenVH:
+            for i in list_quarter:
+                i.add(sprite)
+        else:
+            if ((0 <= x1 <= math.ceil(max_len_x / 3)) or (0 <= x1 + x2 <= math.ceil(max_len_x / 3))) and (
+                    (0 <= y1 <= math.ceil(max_len_y / 3)) or (0 <= y1 + y2 <= math.ceil(max_len_y / 3))):  # 1/9
+                if sprite:
+                    quarter_1.add(sprite)
+                else:
+                    return 1
 
-        if ((max_len_x / 3 <= x1 <= max_len_x - max_len_x / 3) or (
-                max_len_x / 3 <= x1 + x2 <= max_len_x - max_len_x / 3)) and (
-                (0 <= y1 <= max_len_y / 3) or (0 <= y1 + y2 <= max_len_y / 3)):  # 2/9
-            if sprite:
-                quarter_2.add(sprite)
-            else:
-                return 2
+            if ((math.floor(max_len_x / 3) <= x1 <= math.ceil(max_len_x - max_len_x / 3)) or (
+                    math.floor(max_len_x / 3) <= x1 + x2 <= math.ceil(max_len_x - max_len_x / 3))) and (
+                    (0 <= y1 <= math.ceil(max_len_y / 3)) or (0 <= y1 + y2 <= math.ceil(max_len_y / 3))):  # 2/9
+                if sprite:
+                    quarter_2.add(sprite)
+                else:
+                    return 2
 
-        if ((max_len_x - max_len_x / 3 <= x1 <= max_len_x) or (max_len_x - max_len_x / 3 <= x1 + x2 <= max_len_x)) and (
-                (0 <= y1 <= max_len_y / 3) or (0 <= y1 + y2 <= max_len_y / 3)):  # 3/9
-            if sprite:
-                quarter_3.add(sprite)
-            else:
-                return 3
+            if ((math.floor(max_len_x - max_len_x / 3) <= x1 <= max_len_x) or (math.floor(max_len_x - max_len_x / 3) <= x1 + x2 <= max_len_x)) and (
+                    (0 <= y1 <= math.ceil(max_len_y / 3)) or (0 <= y1 + y2 <= math.ceil(max_len_y / 3))):  # 3/9
+                if sprite:
+                    quarter_3.add(sprite)
+                else:
+                    return 3
 
-        if ((0 <= x1 <= max_len_x / 3) or (0 <= x1 + x2 <= max_len_x / 3)) and (
-                (max_len_y / 3 <= y1 <= max_len_y - max_len_y / 3) or (
-                max_len_y / 3 <= y1 + y2 <= max_len_y - max_len_y / 3)):  # 4/9
-            if sprite:
-                quarter_4.add(sprite)
-            else:
-                return 4
+            if ((0 <= x1 <= math.ceil(max_len_x / 3)) or (0 <= x1 + x2 <= math.ceil(max_len_x / 3))) and (
+                    (math.floor(max_len_y / 3) <= y1 <= math.ceil(max_len_y - max_len_y / 3)) or (
+                    math.floor(max_len_y / 3) <= y1 + y2 <= math.ceil(max_len_y - max_len_y / 3))):  # 4/9
+                if sprite:
+                    quarter_4.add(sprite)
+                else:
+                    return 4
 
-        if ((max_len_x / 3 <= x1 <= max_len_x - max_len_x / 3) or (
-                max_len_x / 3 <= x1 + x2 <= max_len_x - max_len_x / 3)) and (
-                (max_len_y / 3 <= y1 <= max_len_y - max_len_y / 3) or (
-                max_len_y / 3 <= y1 + y2 <= max_len_y - max_len_y / 3)):  # 5/9
-            if sprite:
-                quarter_5.add(sprite)
-            else:
-                return 5
+            if ((math.floor(max_len_x / 3) <= x1 <= math.ceil(max_len_x - max_len_x / 3)) or (
+                    math.floor(max_len_x / 3) <= x1 + x2 <= math.ceil(max_len_x - max_len_x / 3))) and (
+                    (math.floor(max_len_y) / 3 <= y1 <= math.ceil(max_len_y - max_len_y / 3)) or (
+                    math.floor(max_len_y / 3) <= y1 + y2 <= math.ceil(max_len_y - max_len_y / 3))):  # 5/9
+                if sprite:
+                    quarter_5.add(sprite)
+                else:
+                    return 5
 
-        if ((max_len_x - max_len_x / 3 <= x1 <= max_len_x) or (max_len_x - max_len_x / 3 <= x1 + x2 <= max_len_x)) and \
-                ((max_len_y / 3 <= y1 <= max_len_y - max_len_y / 3) or (
-                        max_len_y / 3 <= y1 + y2 <= max_len_y - max_len_y / 3)):  # 6/9
-            if sprite:
-                quarter_6.add(sprite)
-            else:
-                return 6
+            if ((math.floor(max_len_x - max_len_x / 3) <= x1 <= max_len_x) or (math.floor(max_len_x - max_len_x / 3) <= x1 + x2 <= max_len_x)) and \
+                    ((math.floor(max_len_y / 3) <= y1 <= math.ceil(max_len_y - max_len_y / 3)) or (
+                            math.floor(max_len_y / 3) <= y1 + y2 <= math.ceil(max_len_y - max_len_y / 3))):  # 6/9
+                if sprite:
+                    quarter_6.add(sprite)
+                else:
+                    return 6
 
-        if ((0 <= x1 <= max_len_x / 3) or (0 <= x1 + x2 <= max_len_x / 3)) and (
-                (max_len_y - max_len_y / 3 <= y1 <= max_len_y) or (
-                max_len_y - max_len_y / 3 <= y1 + y2 <= max_len_y)):  # 7/9
-            if sprite:
-                quarter_7.add(sprite)
-            else:
-                return 7
+            if ((0 <= x1 <= math.ceil(max_len_x / 3)) or (0 <= x1 + x2 <= math.ceil(max_len_x / 3))) and (
+                    (math.floor(max_len_y - max_len_y / 3) <= y1 <= max_len_y) or (
+                    math.floor(max_len_y - max_len_y / 3) <= y1 + y2 <= max_len_y)):  # 7/9
+                if sprite:
+                    quarter_7.add(sprite)
+                else:
+                    return 7
 
-        if ((max_len_x / 3 <= x1 <= max_len_x - max_len_x / 3) or (
-                max_len_x / 3 <= x1 + x2 <= max_len_x - max_len_x / 3)) and (
-                (max_len_y - max_len_y / 3 <= y1 <= max_len_y) or (
-                max_len_y - max_len_y / 3 <= y1 + y2 <= max_len_y)):  # 8/9
-            if sprite:
-                quarter_8.add(sprite)
-            else:
-                return 8
+            if ((math.floor(max_len_x / 3) <= x1 <= math.ceil(max_len_x - max_len_x / 3)) or (
+                    math.floor(max_len_x / 3) <= x1 + x2 <= math.ceil(max_len_x - max_len_x / 3))) and (
+                    (math.floor(max_len_y - max_len_y / 3) <= y1 <= max_len_y) or (
+                    math.floor(max_len_y - max_len_y / 3) <= y1 + y2 <= max_len_y)):  # 8/9
+                if sprite:
+                    quarter_8.add(sprite)
+                else:
+                    return 8
 
-        if ((max_len_x - max_len_x / 3 <= x1 <= max_len_x) or (max_len_x - max_len_x / 3 <= x1 + x2 <= max_len_x)) and (
-                (max_len_y - max_len_y / 3 <= y1 <= max_len_y) or (
-                max_len_y - max_len_y / 3 <= y1 + y2 <= max_len_y)):  # 9/9
-            if sprite:
-                quarter_9.add(sprite)
-            else:
-                return 9
+            if ((math.floor(max_len_x - max_len_x / 3) <= x1 <= max_len_x) or (math.floor(max_len_x - max_len_x / 3) <= x1 + x2 <= max_len_x)) and (
+                    (math.floor(max_len_y - max_len_y / 3) <= y1 <= max_len_y) or (
+                    math.floor(max_len_y - max_len_y / 3) <= y1 + y2 <= max_len_y)):  # 9/9
+                if sprite:
+                    quarter_9.add(sprite)
+                else:
+                    return 9
 
     def lvl_restart(self):
         global SDVIG_X, SDVIG_Y, count_gold_key
