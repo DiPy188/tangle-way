@@ -24,8 +24,9 @@ all_obj = pg.sprite.Group()
 all_objV = pg.sprite.Group()
 all_objH = pg.sprite.Group()
 
-key = pg.sprite.Group()
-count_key = 0
+gold_key = pg.sprite.Group()
+count_gold_key = 0
+exit_doors = pg.sprite.Group()
 
 group_sprite_wall = pg.sprite.Group()  # группа обычных блоков
 group_sprite_surf = pg.sprite.Group()  # Группа поверхности
@@ -37,10 +38,19 @@ quarter_1 = pg.sprite.Group()
 quarter_2 = pg.sprite.Group()
 quarter_3 = pg.sprite.Group()
 quarter_4 = pg.sprite.Group()
+quarter_5 = pg.sprite.Group()
+quarter_6 = pg.sprite.Group()
+quarter_7 = pg.sprite.Group()
+quarter_8 = pg.sprite.Group()
+quarter_9 = pg.sprite.Group()
+
+list_quarter = [quarter_1, quarter_2, quarter_3, quarter_4, quarter_5, quarter_6, quarter_7, quarter_8, quarter_9]
 
 """Параметры экрана: Буферизация|Разрешение"""
 x_monitor, y_monitor = get_monitors()[0].width, get_monitors()[0].height
+
 size: Tuple[int, int] = (x_monitor, y_monitor)  # Разрешение экрана
+print(size)
 SIZE = WIDTH, HEIGHT = size
 flags = pg.DOUBLEBUF  # Полныйэкран|Буферизация
 screen = pg.display.set_mode(flags=flags)
@@ -88,7 +98,8 @@ objects = {
     'player': load_image('player.png'),
     'enemy': load_image('enemy.png'),
     'enemy2': load_image('enemy2.png'),
-    'key': load_image('key.png')
+    'key': load_image('key.png'),
+    'exit': load_image('exit.png')
 }
 
 max_len_x = 0
@@ -136,8 +147,11 @@ def generate_level(name):
                     EnemyH(x, y)
                 elif level[y][x] == 'k':  # k - ключ, небходиммый для прохождения уровня
                     Key('key', x, y)
+                elif level[y][x] == 'x':
+                    Exit('exit', x, y)
+                elif level[y][x] == 'P':
+                    Player(x, y)  # сам игрок
         max_len_x = max_len_x * 50
-        Player(lines[-1].split()[0], lines[-1].split()[1])  # сам игрок
 
         print(max_len_x, max_len_y)
 
@@ -221,7 +235,16 @@ class EnemyH(pg.sprite.Sprite):
 
 class Key(pg.sprite.Sprite):
     def __init__(self, sprite_name, pos_x, pos_y):
-        super().__init__(key)
+        super().__init__(gold_key)
+        self.image = objects[sprite_name]
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_width * pos_y
+        )
+
+
+class Exit(pg.sprite.Sprite):
+    def __init__(self, sprite_name, pos_x, pos_y):
+        super().__init__(exit_doors)
         self.image = objects[sprite_name]
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_width * pos_y
@@ -231,8 +254,8 @@ class Key(pg.sprite.Sprite):
 class Player(pg.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__(player)
-        self.x = int(x)
-        self.y = int(y)
+        self.x = int(x) * tile_width
+        self.y = int(y) * tile_height
         self.image = load_image('player.png')
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
@@ -310,28 +333,34 @@ class App:
         self.door_r = True  #
         self.door_g = True  #
 
+        x, y = 0, 0  # Передвижение игрока
+
         while self.is_run:
             self.Enemy()
             keys = pg.key.get_pressed()
+
             for event in pg.event.get():
 
                 if event.type == pg.QUIT:
                     self.is_run = False
 
             if keys[pg.K_UP] or keys[pg.K_w]:
-                self.Move_pl(y=-2)
+                y = -2
 
             elif keys[pg.K_DOWN] or keys[pg.K_s]:
-                self.Move_pl(y=2)
+                y = 2
 
             if keys[pg.K_LEFT] or keys[pg.K_a]:
-                self.Move_pl(x=-2)
+                x = -2
 
             elif keys[pg.K_RIGHT] or keys[pg.K_d]:
-                self.Move_pl(x=2)
+                x = 2
 
             if keys[pg.K_r]:
                 self.lvl_restart()
+
+            self.Move_pl(x, y)
+            x, y = 0, 0
 
             self.clock.tick(self.FPS)
             self.screen.fill('black')
@@ -343,20 +372,25 @@ class App:
         pg.quit()
 
     def Move_pl(self, x=0, y=0):
+        global count_gold_key
         Camera()
         i = player.sprites()[0]
 
         """Для определения направления игрока"""
-        if (x > 0 and self.direction_flag is False) or self.direction_flag is None:
+        if (x > 0 and self.direction_flag is False) or self.direction_flag is None:  # Работает
             player.sprites()[0].image = pg.transform.flip(player.sprites()[0].image, True, False)
             self.direction_flag = True
-        elif (x < 0 and self.direction_flag is True) or self.direction_flag is None:
+
+        elif (x < 0 and self.direction_flag is True) or self.direction_flag is None:  # Работает
             player.sprites()[0].image = pg.transform.flip(player.sprites()[0].image, True, False)
             self.direction_flag = False
 
-        print(f'{self.clock.get_fps():2.0f}')
+        key_check = list((sprite for sprite in gold_key if pg.sprite.collide_mask(i, sprite)))
+        if key_check:
+            key_check[0].kill()
+            count_gold_key += 1
 
-        def check_wall_quater(condition=0):
+        def check_wall_quater(condition=0):  # Работает
             quarter = None
             (x1, y1, x2, y2) = i.rect
             if condition == 1:
@@ -367,24 +401,50 @@ class App:
                 quarter = quarter_3
             elif condition == 4:
                 quarter = quarter_4
+            elif condition == 5:
+                quarter = quarter_5
+            elif condition == 6:
+                quarter = quarter_6
+            elif condition == 7:
+                quarter = quarter_7
+            elif condition == 8:
+                quarter = quarter_8
+            elif condition == 9:
+                quarter = quarter_9
 
             gen = list((sprite for sprite in quarter if pg.sprite.collide_mask(i, sprite)))
-            if len(gen) > 0:
+            try:
+                gen = gen[0]
+                if gen in redVH:
+                    if self.door_r is True:
+                        if gen in group_sprite_red_doorV:
+                            self.collision_door_V(i, x, gen, param='red')
 
-                if gen in redVH and self.door_r is True:
-                    if gen in group_sprite_red_doorV:
-                        self.collision_door_V(i, x, gen, param='red')
+                        elif gen in group_sprite_red_doorH:
+                            self.collision_door_H(i, y, gen, param='red')
+                    else:
+                        i.rect = (x1 - x, y1 - y, x2, y2)
 
-                    elif gen in group_sprite_red_doorH:
-                        self.collision_door_H(i, y, gen, param='red')
+                elif gen in greenVH:
+                    if self.door_g is True:
+                        if gen in group_sprite_green_doorV:
+                            self.collision_door_V(i, x, gen, param='green')
+                        elif gen in group_sprite_green_doorH:
+                            self.collision_door_H(i, y, gen, param='green')
+                    else:
+                        i.rect = (x1 - x, y1 - y, x2, y2)
 
-                elif gen in greenVH and self.door_g is True:
-                    if gen in group_sprite_green_doorV:
-                        self.collision_door_V(i, x, gen, param='green')
-                    elif gen in group_sprite_green_doorH:
-                        self.collision_door_H(i, y, gen, param='green')
-                else:
+                elif gen in group_sprite_wall:
                     i.rect = (x1 - x, y1 - y, x2, y2)
+                if gen in exit_doors:
+                    print(len(gold_key), count_gold_key)
+                    if len(gold_key) == 0:
+                        print('Win')
+                        self.lvl_restart()
+                    else:
+                        i.rect = (x1 - x, y1 - y, x2, y2)
+            except:
+                pass
 
         # Прибавляем координаты игрока
         (x1, y1, x2, y2) = i.rect
@@ -393,36 +453,99 @@ class App:
         ms_sdg_X = SDVIG_X
         if ms_sdg_Y > 0:
             ms_sdg_Y = -abs(ms_sdg_Y)
-        elif ms_sdg_Y < 0:
+        if ms_sdg_Y < 0:
             ms_sdg_Y = abs(ms_sdg_Y)
 
         if ms_sdg_X > 0:
             ms_sdg_X = -abs(ms_sdg_X)
-        elif ms_sdg_X < 0:
+        if ms_sdg_X < 0:
             ms_sdg_X = abs(ms_sdg_X)
 
-        if ((0 <= x1 + ms_sdg_X <= max_len_x // 2) or (0 <= (x1 + x2 + ms_sdg_X) <= max_len_x // 2)) and (
-                (0 <= y1 + ms_sdg_Y <= max_len_y // 2) or (0 <= (y1 + y2 + ms_sdg_Y) <= max_len_y // 2)):
-            check_wall_quater(condition=1)
+        x1 += ms_sdg_X + x
+        y1 += ms_sdg_Y + y
+        try:
+            check_wall_quater(self.all_quarter_condition(x1=x1, y1=y1, x2=x2, y2=y2))
+        except:
+            print('За границей поля!')
+            self.lvl_restart()
 
-        elif ((max_len_x // 2 <= x1 + ms_sdg_X <= max_len_x) or (
-                max_len_x // 2 <= (x1 + x2 + ms_sdg_X) <= max_len_x)) and (
-                (0 <= y1 + ms_sdg_Y <= max_len_y // 2) or (0 <= (y1 + y2 + ms_sdg_Y) <= max_len_y // 2)):
-            check_wall_quater(condition=2)
+    def all_quarter_condition(self, x1=0, y1=0, x2=0, y2=0, sprite=None):
+        """Деление экрана на 9 равных частей"""
+        if ((0 <= x1 <= max_len_x / 3) or (0 <= x1 + x2 <= max_len_x / 3)) and (
+                (0 <= y1 <= max_len_y / 3) or (0 <= y1 + y2 <= max_len_y / 3)):  # 1/9
+            if sprite:
+                quarter_1.add(sprite)
+            else:
+                return 1
 
-        elif ((0 <= x1 + ms_sdg_X <= max_len_x // 2) or (0 <= (x1 + x2 + ms_sdg_X) <= max_len_x // 2)) and (
-                (max_len_y // 2 <= y1 + ms_sdg_Y <= max_len_y) or (
-                max_len_y // 2 <= (y1 + y2 + ms_sdg_Y) <= max_len_y)):
-            check_wall_quater(condition=3)
+        if ((max_len_x / 3 <= x1 <= max_len_x - max_len_x / 3) or (
+                max_len_x / 3 <= x1 + x2 <= max_len_x - max_len_x / 3)) and (
+                (0 <= y1 <= max_len_y / 3) or (0 <= y1 + y2 <= max_len_y / 3)):  # 2/9
+            if sprite:
+                quarter_2.add(sprite)
+            else:
+                return 2
 
-        elif ((max_len_x // 2 <= x1 + ms_sdg_X <= max_len_x) or (
-                max_len_x // 2 <= (x1 + x2 + ms_sdg_X) <= max_len_x)) and (
-                (max_len_y // 2 <= y1 + ms_sdg_Y <= max_len_y) or (
-                max_len_y // 2 <= (y1 + y2 + ms_sdg_Y) <= max_len_y)):
-            check_wall_quater(condition=4)
+        if ((max_len_x - max_len_x / 3 <= x1 <= max_len_x) or (max_len_x - max_len_x / 3 <= x1 + x2 <= max_len_x)) and (
+                (0 <= y1 <= max_len_y / 3) or (0 <= y1 + y2 <= max_len_y / 3)):  # 3/9
+            if sprite:
+                quarter_3.add(sprite)
+            else:
+                return 3
+
+        if ((0 <= x1 <= max_len_x / 3) or (0 <= x1 + x2 <= max_len_x / 3)) and (
+                (max_len_y / 3 <= y1 <= max_len_y - max_len_y / 3) or (
+                max_len_y / 3 <= y1 + y2 <= max_len_y - max_len_y / 3)):  # 4/9
+            if sprite:
+                quarter_4.add(sprite)
+            else:
+                return 4
+
+        if ((max_len_x / 3 <= x1 <= max_len_x - max_len_x / 3) or (
+                max_len_x / 3 <= x1 + x2 <= max_len_x - max_len_x / 3)) and (
+                (max_len_y / 3 <= y1 <= max_len_y - max_len_y / 3) or (
+                max_len_y / 3 <= y1 + y2 <= max_len_y - max_len_y / 3)):  # 5/9
+            if sprite:
+                quarter_5.add(sprite)
+            else:
+                return 5
+
+        if ((max_len_x - max_len_x / 3 <= x1 <= max_len_x) or (max_len_x - max_len_x / 3 <= x1 + x2 <= max_len_x)) and \
+                ((max_len_y / 3 <= y1 <= max_len_y - max_len_y / 3) or (
+                        max_len_y / 3 <= y1 + y2 <= max_len_y - max_len_y / 3)):  # 6/9
+            if sprite:
+                quarter_6.add(sprite)
+            else:
+                return 6
+
+        if ((0 <= x1 <= max_len_x / 3) or (0 <= x1 + x2 <= max_len_x / 3)) and (
+                (max_len_y - max_len_y / 3 <= y1 <= max_len_y) or (
+                max_len_y - max_len_y / 3 <= y1 + y2 <= max_len_y)):  # 7/9
+            if sprite:
+                quarter_7.add(sprite)
+            else:
+                return 7
+
+        if ((max_len_x / 3 <= x1 <= max_len_x - max_len_x / 3) or (
+                max_len_x / 3 <= x1 + x2 <= max_len_x - max_len_x / 3)) and (
+                (max_len_y - max_len_y / 3 <= y1 <= max_len_y) or (
+                max_len_y - max_len_y / 3 <= y1 + y2 <= max_len_y)):  # 8/9
+            if sprite:
+                quarter_8.add(sprite)
+            else:
+                return 8
+
+        if ((max_len_x - max_len_x / 3 <= x1 <= max_len_x) or (max_len_x - max_len_x / 3 <= x1 + x2 <= max_len_x)) and (
+                (max_len_y - max_len_y / 3 <= y1 <= max_len_y) or (
+                max_len_y - max_len_y / 3 <= y1 + y2 <= max_len_y)):  # 9/9
+            if sprite:
+                quarter_9.add(sprite)
+            else:
+                return 9
 
     def lvl_restart(self):
-        global SDVIG_X, SDVIG_Y
+        global SDVIG_X, SDVIG_Y, count_gold_key
+
         for i in all_sprites:
             i.kill()
         for i in group_sprite_wall:
@@ -452,34 +575,28 @@ class App:
 
         """открытие бд для уровня"""
         generate_level(f'lvl{lvl_chooise}.txt')
+        count_gold_key = 0
 
-        all_sprites.add(group_sprite_wall, player, mobH, mobV, group_sprite_green_doorV, group_sprite_red_doorV,
+        all_sprites.add(group_sprite_wall, gold_key, exit_doors, player, mobH, mobV, group_sprite_green_doorV,
+                        group_sprite_red_doorV,
                         group_sprite_green_doorH,
                         group_sprite_red_doorH)
         enemy.add(mobH, mobV)
         greenVH.add(group_sprite_green_doorV, group_sprite_green_doorH)
         redVH.add(group_sprite_red_doorV, group_sprite_red_doorH)
-        all_obj.add(group_sprite_wall, greenVH, redVH)
+        all_obj.add(group_sprite_wall, greenVH, redVH, exit_doors)
 
         for sprite in all_obj:
             (x1, y1, x2, y2) = sprite.rect
+            self.all_quarter_condition(x1, y1, x2, y2, sprite)
 
-            if ((0 <= x1 <= max_len_x // 2) or (0 <= (x1 + x2) <= max_len_x // 2)) and (
-                    (0 <= y1 <= max_len_y // 2) or (0 <= (y1 + y2) <= max_len_y // 2)):  # 1/4
-                quarter_1.add(sprite)
+        for i in list_quarter:
+            print(i)
 
-            if ((max_len_x // 2 <= x1 <= max_len_x) or (max_len_x // 2 <= (x1 + x2) <= max_len_x)) and (
-                    (0 <= y1 <= max_len_y // 2) or (0 <= (y1 + y2) <= max_len_y // 2)):  # 2/4
-                quarter_2.add(sprite)
-
-            if ((0 <= x1 <= max_len_x // 2) or (0 <= (x1 + x2) <= max_len_x // 2)) and (
-                    (max_len_y // 2 <= y1 <= max_len_y) or (max_len_y // 2 <= (y1 + y2) <= max_len_y)):  # 3/4
-
-                quarter_3.add(sprite)
-
-            if ((max_len_x // 2 <= x1 <= max_len_x) or (max_len_x // 2 <= (x1 + x2) <= max_len_x)) and (
-                    (max_len_y // 2 <= y1 <= max_len_y) or (max_len_y // 2 <= (y1 + y2) <= max_len_y)):  # 4/4
-                quarter_4.add(sprite)
+        print('-' * 20)
+        print(all_obj)
+        print(mobV)
+        print(mobH)
 
         all_sprites.draw(self.screen)
         self.door_r = True  # Красная, В какую дверь игрок может войти (по умолчанию в любую)
@@ -506,12 +623,14 @@ class App:
         SDVIG_Y = 0
         dict_vector_enemyV.clear()
         dict_vector_enemyH.clear()
+
         for num1 in range(len(mobV)):
             dict_vector_enemyV[num1] = random.choice([-1, 1])
 
         for num2 in range(len(mobH)):
             x = random.choice([-1, 1])
             dict_vector_enemyH[num2] = x
+
             if x > 0:
                 mobH.sprites()[num2].image = pg.transform.flip(mobH.sprites()[num2].image, True, False)
 
@@ -522,10 +641,10 @@ class App:
             Enemy_move().vectorH_enemy()
             Enemy_move().vectorV_enemy()
 
-    def collision_door_H(self, i, y, gen, param=None):
+    def collision_door_H(self, i, y, sprite, param=None):
 
         if y < 0:
-            if i.rect[1] + i.rect[3] - 7 < gen[0].rect[1]:
+            if i.rect[1] + i.rect[3] - 7 < sprite.rect[1]:
                 if param == 'green':
                     self.door_r = True
                     self.door_g = False
@@ -535,7 +654,7 @@ class App:
                     self.door_g = True
 
         if y > 0:
-            if i.rect[1] + 4 > gen[0].rect[1] + gen[0].rect[3]:
+            if i.rect[1] + 4 > sprite.rect[1] + sprite.rect[3]:
                 if param == 'green':
                     self.door_r = True
                     self.door_g = False
@@ -544,9 +663,9 @@ class App:
                     self.door_r = False
                     self.door_g = True
 
-    def collision_door_V(self, i, x, gen, param=None):
+    def collision_door_V(self, i, x, sprite, param=None):
         if x > 0:
-            if i.rect[0] + 3 > gen[0].rect[0] + gen[0].rect[2]:
+            if i.rect[0] + 5 > sprite.rect[0] + sprite.rect[2]:
                 if param == 'green':
                     self.door_r = True
                     self.door_g = False
@@ -557,7 +676,7 @@ class App:
 
 
         elif x < 0:
-            if i.rect[0] + i.rect[2] - 6 < gen[0].rect[0]:
+            if i.rect[0] + i.rect[2] - 4 <= sprite.rect[0]:
                 if param == 'green':
                     self.door_r = True
                     self.door_g = False
@@ -575,7 +694,7 @@ class Camera:
 
         self.screen = screen
         self.clock = pg.time.Clock()
-        self.FPS = 50
+        self.FPS = 59
 
         if x + x2 > WIDTH:
             self.move_left()
@@ -592,6 +711,9 @@ class Camera:
     def move_right(self):
         global SDVIG_X
         counter = 1000
+        if x_monitor - counter < 0:
+            counter += x_monitor - counter - 50
+
         counter_e = counter
         SDVIG_X += counter
         a = 0
@@ -628,6 +750,9 @@ class Camera:
     def move_left(self):
         global SDVIG_X
         counter = -1000
+        if x_monitor + counter < 0:
+            counter -= x_monitor + counter - 50
+
         counter_e = counter
         a = 0
         c = True
@@ -663,6 +788,9 @@ class Camera:
     def move_up(self):
         global SDVIG_Y
         counter = 1000
+        if y_monitor - counter < 0:
+            counter += y_monitor - counter - 50
+
         counter_e = counter
         a = 0
         c = True
@@ -698,6 +826,9 @@ class Camera:
     def move_down(self):
         global SDVIG_Y
         counter = -1000
+        if y_monitor + counter < 0:
+            counter -= x_monitor + counter - 50
+
         counter_e = counter
         a = 0
         c = True
@@ -855,6 +986,9 @@ def miscalculation():
 def main():
     if mobH or mobV:
         miscalculation()
+
+    print(0, max_len_x / 3, max_len_x - max_len_x / 3, max_len_x)
+    print(0, max_len_y / 3, max_len_y - max_len_y / 3, max_len_y)
 
     app = App()
     app.lvl_restart()
