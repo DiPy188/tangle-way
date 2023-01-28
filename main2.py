@@ -131,7 +131,7 @@ def generate_level(name):
                 if len(level[y]) > max_len_x:
                     max_len_x = len(level[y])
                     print(len(level[y]))
-                if level[y][x] == 's':  # s - поверхность
+                if level[y][x] == '_':  # s - поверхность
                     continue
                 elif level[y][x] == 'w':  # w - стена
                     Wall('wall', x, y)
@@ -492,7 +492,8 @@ class App:
                 else:
                     return 2
 
-            if ((math.floor(max_len_x - max_len_x / 3) <= x1 <= max_len_x) or (math.floor(max_len_x - max_len_x / 3) <= x1 + x2 <= max_len_x)) and (
+            if ((math.floor(max_len_x - max_len_x / 3) <= x1 <= max_len_x) or (
+                    math.floor(max_len_x - max_len_x / 3) <= x1 + x2 <= max_len_x)) and (
                     (0 <= y1 <= math.ceil(max_len_y / 3)) or (0 <= y1 + y2 <= math.ceil(max_len_y / 3))):  # 3/9
                 if sprite:
                     quarter_3.add(sprite)
@@ -516,7 +517,8 @@ class App:
                 else:
                     return 5
 
-            if ((math.floor(max_len_x - max_len_x / 3) <= x1 <= max_len_x) or (math.floor(max_len_x - max_len_x / 3) <= x1 + x2 <= max_len_x)) and \
+            if ((math.floor(max_len_x - max_len_x / 3) <= x1 <= max_len_x) or (
+                    math.floor(max_len_x - max_len_x / 3) <= x1 + x2 <= max_len_x)) and \
                     ((math.floor(max_len_y / 3) <= y1 <= math.ceil(max_len_y - max_len_y / 3)) or (
                             math.floor(max_len_y / 3) <= y1 + y2 <= math.ceil(max_len_y - max_len_y / 3))):  # 6/9
                 if sprite:
@@ -541,7 +543,8 @@ class App:
                 else:
                     return 8
 
-            if ((math.floor(max_len_x - max_len_x / 3) <= x1 <= max_len_x) or (math.floor(max_len_x - max_len_x / 3) <= x1 + x2 <= max_len_x)) and (
+            if ((math.floor(max_len_x - max_len_x / 3) <= x1 <= max_len_x) or (
+                    math.floor(max_len_x - max_len_x / 3) <= x1 + x2 <= max_len_x)) and (
                     (math.floor(max_len_y - max_len_y / 3) <= y1 <= max_len_y) or (
                     math.floor(max_len_y - max_len_y / 3) <= y1 + y2 <= max_len_y)):  # 9/9
                 if sprite:
