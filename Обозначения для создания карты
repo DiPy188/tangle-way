@@ -1,0 +1,11 @@
+"w" - wall
+"s" or "_" - None
+"P" - player
+"e" - enemy horizontal
+"E" - enemy vertical
+"G" - green door vertical
+"g" - green door horizontal
+"R" - red door vertical
+"r" - red door horizontal
+"k" - key
+"x" - escape
