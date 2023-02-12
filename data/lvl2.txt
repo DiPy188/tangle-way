@@ -9,41 +9,11 @@ w _ _ _ _ _ _ w _ _ _ R _ _ G _ _ _ _ _ _ _ _ w _ _ _ e _ _ _ w w
 w r r w _ _ _ G _ _ E w g g w _ _ _ _ _ _ _ _ w w _ _ _ _ _ _ w
 w _ _ _ _ _ e w _ _ _ _ _ _ _ _ _ _ _ _ _ _ E w _ _ _ _ _ _ _ w
 w w w w g w w w w w w w w r w w w w w w w w w w w w w w w w g w
-w _ _ E _ _ e _ _ w _ E _ _ _ _ _ _ w _ e _ _ _ _ _ _ k _ _ _ w
-w _ _ _ _ _ _ _ e w _ _ _ w _ _ _ _ w w w g w w w w _ _ _ _ _ w
-w e _ _ _ k _ _ _ w _ _ _ G _ k _ e w e k _ _ _ e w _ _ _ _ _ w
-w _ E _ _ _ _ _ _ R _ _ _ G _ _ _ _ R _ _ _ _ _ _ R _ E _ _ _ w
-w _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w
-w w w w w w _ w w w w w w w w w w w w w w w w w w w w w w w w w
-w k _ e _ _ _ w E _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w _ k _ _ _ e w
-w _ _ _ _ _ _ R _ _ _ _ _ k _ _ _ e _ _ _ _ _ _ R _ _ _ e _ _ w
-w _ _ e _ _ _ w _ _ _ _ e _ _ _ _ _ _ _ _ _ _ e w e _ _ k _ _ w
-w _ _ _ E _ _ w e _ _ _ _ _ _ _ _ _ _ _ _ _ _ w w w g w w w w w
-w w w w g w w w _ _ _ w r r w _ _ _ _ _ _ _ w w E _ _ _ _ _ _ w w
-w e _ _ _ _ _ w _ _ _ R P _ G _ _ _ P _ _ _ _ _ _ _ _ _ _ _ _ _ w
-w _ _ _ _ _ _ w _ _ _ R _ _ G _ _ _ _ _ _ _ _ w _ _ _ e _ _ _ w w
-w r r w _ _ _ G _ _ E w g g w _ _ _ _ _ _ _ _ w w _ _ _ _ _ _ w
-w _ _ _ _ _ e w _ _ _ _ _ _ _ _ _ _ _ _ _ _ E w _ _ _ _ _ _ _ w
-w w w w g w w w w w w w w r w w w w w w w w w w w w w w w w g w
-w _ _ E _ _ e _ _ w _ E _ _ _ _ _ _ w _ e _ _ _ _ _ _ k _ _ _ w
-w _ _ _ _ _ _ _ e w _ _ _ w _ _ _ _ w w w g w w w w _ _ _ _ _ w
-w e _ _ _ k _ _ _ w _ _ _ G _ k _ e w e k _ _ _ e w _ _ _ _ _ w
-w _ E _ _ _ _ _ _ R _ _ _ G _ _ _ _ R _ _ _ _ _ _ R _ E _ _ _ w
-w _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w
-w w w w w w w w w w w w _ w w w w w w w w w w w w w w w w w w w
-w k _ e _ _ _ w E _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w _ k _ _ _ e w
-w _ _ _ _ _ _ R _ _ _ _ _ k _ _ _ e _ _ _ _ _ _ R _ _ _ e _ _ w
-w _ _ e _ _ _ w _ _ _ _ e _ _ _ _ _ _ _ _ _ _ e w e _ _ k _ _ w
-w _ _ _ E _ _ w e _ _ _ _ _ _ _ _ _ _ _ _ _ _ w w w g w w w w w
-w w w w g w w w _ _ _ w r r w _ _ _ _ _ _ _ w w E _ _ _ _ _ _ w w
-w e _ _ _ _ _ w _ _ _ R P _ G _ _ _ P _ _ _ _ _ _ _ _ _ _ _ _ _ w
-w _ _ _ _ _ _ w _ _ _ R _ _ G _ _ _ _ _ _ _ _ w _ _ _ e _ _ _ w w
-w r r w _ _ _ G _ _ E w g g w _ _ _ _ _ _ _ _ w w _ _ _ _ _ _ w
-w _ _ _ _ _ e w _ _ _ _ _ _ _ _ _ _ _ _ _ _ E w _ _ _ _ _ _ _ w
-w w w w g w w w w w w w w r w w w w w w w w w w w w w w w w g w
-w _ _ E _ _ e _ _ w _ E _ _ _ _ _ _ w _ e _ _ _ _ _ _ k _ _ _ w
-w _ _ _ _ _ _ _ e w _ _ _ w _ _ _ _ w w w g w w w w _ _ _ _ _ w
-w e _ _ _ k _ _ _ w _ _ _ G _ k _ e w e k _ _ _ e w _ _ _ _ _ w
-w _ E _ _ _ _ _ _ R _ _ _ G _ _ _ _ R _ _ _ _ _ _ R _ E _ _ _ w
-w _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ w
+w e _ _ _ E _ w _ E _ _ _ _ _ _ _ e _ _ w _ _ _ _ _ _ _ _ _ _ w
+w _ _ _ _ _ _ w _ _ _ _ _ _ e _ _ _ _ _ w _ _ e _ _ _ w w w r w
+w _ _ _ _ _ _ G _ _ _ _ _ _ _ _ _ _ _ _ w _ _ _ _ _ _ w _ _ E w
+w _ _ w _ k _ w _ _ k _ _ w _ _ _ _ _ e G _ _ w _ _ _ w _ _ _ w
+w _ _ R _ _ _ w _ _ _ _ _ G _ _ _ E _ _ w _ _ R _ _ _ G _ k _ w
+w _ _ R _ _ _ w _ _ _ E _ G _ _ _ _ _ _ w _ _ R _ E _ w E _ _ w
+
 w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
